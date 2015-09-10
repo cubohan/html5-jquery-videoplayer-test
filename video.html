@@ -1,0 +1,699 @@
+<!--
+/**
+*    @cubohan
+*    circa2015
+*    
+*    # html5-jQuery-video-player-test
+*/
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+            <title>Video Player</title>
+            <link href="http://vjs.zencdn.net/4.12/video-js.css" rel="stylesheet">
+            <script src="http://vjs.zencdn.net/4.12/video.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.js"></script>
+            <script>
+            $(document).ready(function(){
+                ///
+                path = "/home/cubohan/Downloads/torrents/jQuery: The Return Flight/";//torrents/Suits.S05E09/";
+                start = 1;
+                end = 10;
+                //prepend = ""
+                //append = ".mp4"
+                prepend = ".mp4";
+                append = "";
+                var extLen = 4;
+                var currentTitle = "1";
+                var subTitle = "Suits.S05E09.720p.HDTV.x264-KILLERS.vtt";
+                var sub = true;
+                $vid = $("video");
+                
+                if(path){
+                    prepend = prepend;
+                }
+                init();
+                function form(par){
+                    return append + par + prepend;
+
+                }
+                function init(){
+                    
+                    list = [
+                    
+                    ];
+                    for (var i=start; i<=end; i++){
+                        list.push(i.toString());
+                    }
+                    for(var i in list){
+                        list[i] = form(list[i]);
+                    }
+
+                    var filled = fill(list);
+
+                    $("#menu").html(filled);
+
+                    //$("")
+                    set(form(currentTitle));
+
+                    $("#menu > li").addClass("norm");
+
+                    //setKeyGuide();
+
+                }
+
+               //setInterval
+
+                function fill(arr){
+                    var res = "";
+
+                   for(i in arr){
+                    res+=("<li>"+arr[i]+"</li>");
+                   } 
+
+                   return res;
+
+                };
+
+                var arrowLeft = 37;
+                var arrowUp = 38;
+                var arrowRight = 39;
+                var space = 32;
+                var forward = 190;
+                var backward = 188;
+                var fast = 187;
+                var slow = 189;
+                var fullscreen = 38;
+
+               var keyGuide = {
+                "play/pause": "space",
+                "fullscreen" : "arrow UP",
+                "next video" : "LEFT",
+                "prev video" : "RIGHT",
+                "step ahead" : ">",
+                "step back" : "<",
+                "increase playback speed" : "+",
+                "decrease playback speed" : "-"
+               }
+               setKeyGuide();
+               function setKeyGuide(){
+                    var keyCont = $("#keyControlMap")
+                        //alert(keyGuide);
+                    var tableS = "<table id='keyTable'>";
+                    var tableF = "</table>";
+                    var rowS = "<tr>";
+                    var rowF = "</tr>";
+                    var dataS = "<td>";
+                    var dataF = "</td>";
+                    var elem = tableS;
+                    for(var key in keyGuide){
+                            //alert();
+                           //alert("|" + key + ":" keyGuide[key] + "|");
+                           elem += rowS;
+
+                           elem += ( dataS+ key + dataF + dataS + keyGuide[key] + dataF );
+                            
+                            elem += rowF;
+                    }
+                    elem += tableF;
+                    console.log(elem);
+                    keyCont.append(elem);
+               }
+
+                //$(document).keyup(function(e)){
+                    //playNorm();
+                    //e.preventDefault();
+                //}
+
+                function goNext(){
+                    next(getTitle());
+                }
+                function goPrev(){
+                    prev(getTitle());
+                }
+
+
+                var playback = true;
+                var video_ = document.getElementsByTagName("video")[0];
+
+                var debug = $("#debug")
+                    window.setInterval(function(){
+                    var curTime = formatTime(video_.currentTime);
+                    var duration = formatTime(video_.duration);
+                    debug.empty().append("("+curTime+"/"+duration+")");
+                }, 100);
+
+                function formatTime(sec){
+                    var time = (sec/60).toFixed(2);
+                    var hours = Math.floor(sec/3600);
+                    var minutes = ( Math.floor((sec - parseInt(hours)*3600)/60) ).toString();
+                    var seconds = (Math.floor(sec - parseInt(minutes)*60 - parseInt(hours)*3600 )).toString();
+                    if (seconds.length == 1){
+                        seconds = "0"+seconds;
+                    }
+                    if(minutes.length == 1){
+                        minutes = "0"+minutes;
+                    }
+
+                    if(parseInt(hours))
+                        res = (hours + ":" + minutes + ":" + seconds);
+                    else
+                        res = (minutes + ":" + seconds);
+                    return res;
+                }
+
+                function stepForward() {
+
+                  var now=video_.currentTime;
+
+                  video_.currentTime=now+20;
+
+                }
+
+                 function stepBackward() {
+
+                      var now=video_.currentTime;
+
+                      video_.currentTime=now-20;
+
+                }
+
+                function fullScreen(){
+                    var elem = video_;
+                    if (elem.requestFullscreen) {
+                      elem.requestFullscreen();
+                    } else if (elem.msRequestFullscreen) {
+                      elem.msRequestFullscreen();
+                    } else if (elem.mozRequestFullScreen) {
+                      elem.mozRequestFullScreen();
+                    } else if (elem.webkitRequestFullscreen) {
+                      elem.webkitRequestFullscreen();
+                    }
+                }
+                function togglePlayback(e){
+                    if(playback){
+                        video_.pause();
+                        playback = false;
+                    }
+                    else{
+                        video_.play();
+                        playback = true;
+                    }
+                    e.preventDefault();
+                }
+                 function playNorm(){
+                    if(video_.playbackRate != 1.0)
+                        video_.playbackRate = 1.0;
+                }
+                function fastPlay(){
+                    //if(video_.playbackRate != 1.0)
+                        video_.playbackRate += 0.2;
+                }
+                function slowPlay(){
+                   // if(video_.playbackRate != 1.0)
+                        video_.playbackRate -= 0.2;
+                }
+
+                //alert(arrowRight + goNext.name)
+                 keyMap = {}
+                    keyMap[arrowRight] = goNext;
+                    keyMap[arrowLeft] = goPrev;
+                    keyMap[space] =  togglePlayback;
+                    keyMap[forward] =  stepForward;
+                    keyMap[backward] =  stepBackward;
+                   keyMap[fast] =  fastPlay;
+                    keyMap[slow] =  slowPlay;
+                    keyMap[fullscreen] = fullScreen;
+
+
+                
+                //for(var a in keyMap){
+                   // console.log(a + "  :  " + keyMap[a]);
+          //  }
+
+                $(document).keydown(function(e){
+                    //console.log(e.which)
+                    //alert(e.keycode)
+                   // alert(e.which + " :: " + keyMap[e.which])
+                    keyMap[e.which](e);
+                
+                })
+
+                $("#menu").on("click", "li",function(){
+                    $this = $(this);
+                    //alert($this.html());
+                    set($this.html());
+                    //alert($this.html());
+                });
+                
+
+                $("#chk").click(function(){
+                    if ($(".vjs-error-display").css("display") != "none"){
+                        next(getTitle());
+                    }
+                });
+
+                $("#next").click(function(){
+                    next(getTitle());
+                });
+                $("#prev").click(function(){
+                    
+                    prev(getTitle());
+                });
+                
+                controlMap = {
+                    skip_back : stepBackward,
+                    skip_forw : stepForward,
+                    speed_slow : slowPlay,
+                    speed_fast : fastPlay
+                }
+
+                $("#controls").on("click", "button", function(){
+                    //alert($(this).attr("id"))
+                    controlMap[$(this).attr("id")]();
+                });
+                $("#keyControl").click(function(){
+                    var key = $("#keyTable");
+                    $this = $(this);
+                    $this.text().slice(0,4) == "Show"?$this.text("Hide Keyboard Controls"):$this.text("Show Keyboard Controls");
+                    //alert(key.css("display"))
+                    toggleDisplayAnimate(key);
+                    //key.animate({"display":"block"});
+                });
+                $("#form").on("submit", function(event){
+                    event.preventDefault();
+
+                    path = $('#path').val();
+                    start = $('#start').val();
+                    end = $('#end').val();
+                    prepend = $('#prepend').val();
+                    append = $('#append').val();
+
+                    //alert(prepend)
+                    //alert(append)
+
+
+                    currentTitle = start;
+
+                    init();
+                    //window.location = "#vid";
+
+                });
+
+                function toggleDisplayAnimate(elem){
+                    if(elem.css("display") == "none"){
+                        elem.css("display", "block");
+                    }
+                    else{
+                        elem.css("display", "none");
+                    }
+                
+                }
+
+                function getTitle(){
+                    return $vid.attr("src");
+                }
+                function set(name){
+                    $vid.attr("src",path+name);// > source
+                    
+                    $vid.attr("type","video/"+name.slice(-3,name.length));
+                    currentTitle = name;
+                    if(sub){
+                        addSub();
+                    }
+                    temp = $("#menu > li");
+                    console.log(name);
+                    
+                    highlight(temp.filter(function( index ) {
+                            return $(this).html() === name;
+                        }))
+                        //console.log(temp);
+                        //console.log(temp[i].innerHTML());
+                        //if(temp[i].html() == getTitle()){
+                            //highlight(temp[i]); 
+                        //    break;
+                       // }
+                    
+
+                }
+                function next(cur){
+                    
+                    //alert(cur + ", " + path.length + ", " +  prepend.length);
+                    var nex = cur.slice(path.length+append.length, -prepend.length);
+                    //alert(nex);
+                    nex = (parseInt(nex)+1);
+                    if(nex>end){
+                        nex = start.toString();
+                    }
+                    else{nex = nex.toString()}
+                    set(form(nex));
+                    
+                }
+                function prev(cur){
+                    
+                    //alert(cur);
+                    //alert(path.length+append.length)
+                    //alert(path.length+ " "+append.length)
+                    var prev = cur.slice(path.length+append.length, -prepend.length);
+                   // alert("PREV::  "+prev);
+                    prev = (parseInt(prev)-1);
+                    //alert(prev);
+                    if(prev<start){
+                        prev = end.toString();
+                    }
+                    else{prev = prev.toString();}
+                    set(form(prev));
+
+                }
+                function highlight(elem){
+                    selected = "selected"
+                    normal = "norm"
+                    elem.addClass(selected).removeClass(normal);
+                    //css("background-color", "yellow");
+                    elem.siblings().filter(function(index){
+                        return $(this).css("background-color") == "rgb(255, 255, 0)";
+                    })
+                    .removeClass(selected)
+                    .addClass(normal);
+                    //console.log(elem.css("background-color") == "");
+                    //.css("")
+                }
+                function addSub(){
+                    var subw;
+                    if(subTitle){
+                        subw = subTitle;
+                    }
+                    else{
+                        subw = currentTitle.slice(0, -3)+"vtt";
+                    }
+                   //aert(subw);
+                    $("#sub").attr("src", path+subw);
+
+                }
+
+
+            });
+            </script>
+            <style>
+            #menu{
+                list-style: none;
+
+
+            }
+            #menu>li:hover{
+                cursor:pointer;
+                background-color: bisque;
+
+            }
+            #menu>li:onclick{
+                background-color: 
+            }
+            #menu>li{
+                //display:inline;
+                padding:10px;
+                border:3px solid #999999;
+                border-top: 2px solid #AAA;
+                border-bottom: 2px solid #444444;
+                //margin-bottom: 5px;
+                font-family: sans-serif;
+                //font-weight: bold;
+                font-size: 15px;
+                text-align: center;
+
+                //position: absolute;
+                //top:0;
+                //left:0;
+                width: 33%;
+                //float: left;
+
+                //margin-left: 20px;
+            }
+            #container{
+                position: absolute;
+                top:20;
+                right:0;
+                width: 66%;
+                //float: left;
+            }
+            #next{
+                //float:right;// :right;
+                
+            }
+            #prev{
+                //float:left;
+                
+            }
+
+            #chk{
+                cursor:pointer;
+                //padding:100px;
+                background-color:bisque;
+                border:2px solid #444;
+                font-family: sans-serif;
+                font-weight: bolder;
+                font-size: 20px;
+                box-sizing:border-box;
+                width:30%;
+                text-align: center;
+            }
+            #chk:hover{
+                background-color: tan;
+            }
+            #my_video{
+                width:100%;
+            }
+            #keyTable{
+                border: 2px dotted black;
+                padding: 0%;
+                display: none;
+                width: 290px;
+            }
+            #keyTable  td{
+                font-weight: bold;
+                font-family: sans-serif;
+                text-align: center;
+                //padding: 0.5%;
+                margin: 0;
+            }
+            #keyTable tr{
+                margin: 0;
+                padding: 0;
+            }
+            #keyTable td:first-child{
+                //font-weight: bold;
+                //font-family: sans-serif;
+                text-align: left;
+                //padding: 0.5%;
+                border:2px solid grey;
+
+            }
+            #keyControl{
+                //text-decoration: underline;
+                background-color: brown;
+
+                font-weight: bolder;
+                color: black;
+                cursor: pointer;
+                padding:4px;
+                margin:20px;
+            }
+            #keyControl:hover{
+                background-color: #868686;
+                color:white;
+
+
+            }
+            #formDiv{
+                width:33%;
+            }
+            #form
+
+            .norm{
+                background-color: #888888;
+            }
+            .selected{
+                background-color: yellow;
+            }
+            .center{
+                 margin: 0 auto; 
+                 width: 400px; 
+
+            }
+            .inline{
+                display:inline-block;
+                margin:0 auto;
+            }
+            .controls{
+                padding:10px;
+                margin:10px;
+                font-weight: bolder;
+                font-family: sans-serif;
+                border: 1px solid black;
+            }
+            .control_container{
+                display: inline;
+                //position: absolute;
+                //right:0px;
+                //width: 800px;
+            }
+            .help{
+                width:32%;
+            }
+            .navig{
+                font-family: sans-serif;
+                font-weight: bolder;
+
+            }
+
+            button{
+                padding:10px;
+                font-size:20px;
+                //background-color: #888;
+                cursor:pointer;
+            }
+            body{
+                background-color: #AAA;
+            }
+            input{
+                width:90%;
+                padding:10px;
+                font-family: sans-serif;
+                font-size: 15px;
+            }
+            #submit{
+                font-weight: bolder;
+                width:33%;
+                float:right;
+                
+            }
+
+            #logo{
+                //float:left;
+                padding:0.3em;
+                width:5%;
+            }
+            
+            #nav{
+                //float:right;
+            }
+            #nav {
+                padding: 0.3em;
+            }
+
+            </style>
+    </head>
+
+    <body>
+<nav>
+            
+            <span id="nav">
+                <a href="#former">Change Settings</a>&nbsp| &nbsp<a href="#vider">HTML5/JQuery video player</a>
+            </span>
+            <a id="vider"></a>
+        </nav>
+
+
+    <div name="vid" id="container" align="middle" class:"center inline" style="">
+        <video id="my_video" class="video-js vjs-default-skin center" autoplay controls loop
+             preload="auto" width="90%" height="480" poster="MY_VIDEO_POSTER.jpg"
+             data-setup="{}" src="" type="video/mkv">
+             <track label="English" kind="subtitles" srclang="en" src="/home/cubohan/Downloads/torrents/Suits.S05E09/Suits.S05E09.720p.HDTV.x264-KILLERS.vtt" default>
+            <!-- <source src="codeschool_672.mp4" type='video/mp4'> -->
+             <!-- <source src="MY_VIDEO.webm" type='video/webm'> -->
+             <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/    html5-video-support/" target="_blank">supports HTML5 video</a></p>
+        </video>
+        <div>
+        <button align="left" id="prev">|&lt; prev</button>
+        <button align="right" id="next">next &gt;|</button>
+            <div id="controls">
+                    <span class="control_container">
+                        
+                            <span class="controls">skip back/ahead in video</span>
+                        
+                    
+                        
+                            <span ><button id="skip_back">&lt;&lt;</button><button id="skip_forw">&gt;&gt;</button></span>
+                        
+                    </span>
+
+                    <span class="control_container">
+                    <span ><button id="speed_slow">--</button><button id="speed_fast">++</button></span>
+                        
+                            <span class="controls">Video Playback Speed Control</span>
+                        
+                        
+                        
+                            
+                        
+                    </span>
+                    <div><span id="keyControl">Show Keyboard Controls</span><span id="keyControlMap"></span></div>
+            </div>
+            </div>
+            <div id="chk" class="inline center" align="center">
+            
+            <div id="debug">
+
+            </div>
+        DEBUG
+    </div>
+    </div>
+
+
+
+    <div>
+        <ul id="menu">
+
+        </ul>
+    </div>
+
+<a href="#former"><button class="navig"><sub>v</sub> Playlist Settings <sub>v</sub></button></a>
+
+<div id="formDiv" >
+<a id="former"></a>
+    
+<form id="form" action="#" method="get">        
+<label for="path">File Path</label><br>
+<input name="path" id="path" type="text" pattern=".*[\/\\]{1}" placeholder="Absolute path/url of the video, not including the filename."
+value="/home/cubohan/Downloads/torrents/Suits.S05E09/">
+<div>
+<span class="help">Don't include the file name here, only till it's directory followed by an ending slash compatible to that of your os paths or URL.</span>
+</div>
+<fieldset>
+<legend>
+    Options for dynamatically generating playlist filenames
+</legend> 
+<p>
+    Files can be of this format: &lt;appended text&gt;ITERABLE VALUE<br>(number: start ... end)&lt;prepended text(+file extension)&gt; 
+</p>
+<div>
+<label for="append">Appended Text</label><br>
+<input id="append" name="append" type="text" placeholder="Appended text common to all filenames to be played"
+value="0">
+</div>
+<div>
+<label for="start">Start file number</label><br>
+<input id="start" name="start" type="number" placeholder=""
+value="7" >
+</div>
+<div>
+<label for="end">End file number</label><br>
+<input id="end" type="number" name="end" 
+value="8" >
+</div>
+<div>
+<label for="prepend">Prepended Text (includes extension)</label><br>
+<input name="prepend" id="prepend" type="text" pattern=".*[\.]\w{1,10}" placeholder="Prepended text common to all filenames including extension" 
+value=". The Outsider - A Perfect Circle.mp4">
+</div>
+
+</fieldset>
+<a href="#vider">TOP</a>
+<input id="submit" type="submit" value="Generate Playlist">
+</form>
+
+    
+    </div>
+
+
+    </body>
+</html>
